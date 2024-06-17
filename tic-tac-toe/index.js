@@ -3,10 +3,13 @@ const gameContainer = document.getElementById("game_container");
 let isZero = false;
 let isPlayable = true;
 const movesMade = new Map();
-const gameRectangleLength = 3;
+let gameRectangleLength = 3;
+
+let leftToRightDiagonal = getDiagonal(0);
+let rightToLeftDiagonal = getDiagonal(gameRectangleLength - 1);
 
 
-function makeGrid(gameRectangleLength) {
+function makeGrid() {
     let idIncrement = 0;
 
     gameContainer.style.gridTemplateColumns = `repeat(${gameRectangleLength}, 1fr)`;
@@ -14,7 +17,7 @@ function makeGrid(gameRectangleLength) {
 
     for (i = 0; i < gameRectangleLength; i++) {
         for (j = 0; j < gameRectangleLength; j++) {
-            const div = createDiv(idIncrement, i, j);
+            const div = createDiv(idIncrement, j, i);
             gameContainer.appendChild(div);
             idIncrement++;
         }
@@ -30,7 +33,6 @@ function createDiv(idIncrement, x, y) {
     div.dataset.x = x;
     div.dataset.y = y;
     div.dataset.moveValue = "";
-    div.innerText = `${x}, ${y}`;
     div.onclick = () => makeMove(div);
 
     return div;
@@ -57,7 +59,7 @@ const makeMove = (div) => {
 
     const moveObject = divToMoveObject(div);
     mapMove(moveObject);
-    evaluateGameState(moveObject, gameRectangleLength);
+    evaluateGameState(moveObject);
 }
 
 
@@ -69,7 +71,6 @@ function divToMoveObject(div) {
         "y": div.dataset.y
     };
 }
-
 
 
 function mapMove(moveObject) {
@@ -104,13 +105,59 @@ function evaluateGameState(lastMoveObject) {
         const lastMoveYArray = playersMoves.get(
             stringifyCoordinate("y", lastMoveObject)
         );
-        if (lastMoveXArray.length === gameRectangleLength
-                || lastMoveYArray.length === gameRectangleLength) {
-            console.log(`Player '${lastMoveObject.moveValue}' wins`);
-            isPlayable = false;
+        if (isFinishedOnXorY(lastMoveXArray)) {
+            return;
         }
+        if (isFinishedOnXorY(lastMoveYArray)) {
+            return;
+        }
+
+   }
+    // TODO: diagonal logic without looping
+}
+
+
+function isFinishedDiagonally(lastMoveObject) {
+}
+
+
+
+
+function getDiagonal(upperCornerCoordX) {
+    const diagonalSquares = [];
+
+    if (upperCornerCoordX === 0) {
+        // Return left to right diagonal
+        for (let i = 0; i < gameRectangleLength; i++) {
+            diagonalSquares.push({"x": i, "y": i});
+        }
+        return diagonalSquares;
     }
-    // TODO: diagonal logic
+
+    // Return right to left getDiagonal
+    for (let i = 0; i < gameRectangleLength; i++) {
+        diagonalSquares.push({"x": upperCornerCoordX - i, "y": i});
+    }
+    return diagonalSquares;
+}
+
+
+
+function isFinishedOnXorY(moveArray) {
+    if (moveArray.length === gameRectangleLength) {
+        isPlayable = false;
+        for (let gameBoxId of moveArray) {
+            changeStyle(gameBoxId);
+        }
+        return true;
+    }
+    return false;
+}
+
+
+function changeStyle(gameBoxId) {
+    const div = document.getElementById(gameBoxId);
+    div.style.backgroundColor = "lightgreen";
 }
 
 
@@ -122,4 +169,6 @@ function stringifyCoordinate(coord, moveObject) {
 }
 
 
-makeGrid(gameRectangleLength);
+makeGrid();
+
+
