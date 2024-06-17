@@ -1,0 +1,23 @@
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+.game_container {
+    display: grid; 
+    height: 500px; 
+    width: 500px;
+    gap: 10px;
+    //grid-template-columns: repeat(3, 1fr);
+    //grid-template-rows: repeat(3, 1fr);
+}
+
+.game_box {
+    background-color: lightgray;
+    border: 1px solid #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
